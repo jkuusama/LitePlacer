@@ -345,7 +345,7 @@ namespace LitePlacer
 
             // ======== Nozzles Setup tab:
 
-            Nozzles_initialize();   // must be after Nozzle.LoadCalibration
+            Nozzles_initialize();
 
             // ======== Setup operations that can cause visible reaction:
 
@@ -12122,20 +12122,25 @@ namespace LitePlacer
                 "Count of vision parameters = " + ParameterCount.ToString() + "\n\r" +
                 "Count of calibration data = " + CalibrationCount.ToString() + "\n\r" +
                 "If you didn't excpect this:" + "\n\r" +
-                "Before clicking OK, take a backup copy of your LitePlacer directory." + "\n\r" +
-                "After clicking OK, the data size is adjusted to stored nozzle count," + "\n\r" +
-                "resulting to possible loss of data." + "\n\r" +
+                "Before clicking Yes or No, take a backup copy of your LitePlacer directory." + "\n\r" +
+                "Click Yes: The data size is adjusted to stored nozzle count," + "\n\r" +
+                "resulting to possible loss of data." + "\n\r" + "Click Yes: The data size is adjusted to stored nozzle count," + "\n\r" +
+                "Click No: The data is loaded as is. Results are unpredictable," + "\n\r" +
+                "program may crash and nozzle data needs reviewing." + "\n\r" +
                 "Clicking Cancel will exit without changes.",
-                "Adjust nozzle data sizes?", MessageBoxButtons.OKCancel);
+                "Adjust nozzle data sizes?", MessageBoxButtons.YesNoCancel);
             if (dialogResult == DialogResult.Cancel)
             {
                 Environment.Exit(0);
             };
-            StartingUp = SaveStarting;
-            AdjustNozzleGrid(NozzlesUnload_dataGridView);
-            AdjustNozzleGrid(NozzlesLoad_dataGridView);
-            AdjustNozzleGrid(NozzlesParameters_dataGridView);
-            Nozzle.AdjustNozzleCalibrationDataCount();
+            if (dialogResult == DialogResult.Yes)
+            {
+                StartingUp = SaveStarting;
+                AdjustNozzleGrid(NozzlesUnload_dataGridView);
+                AdjustNozzleGrid(NozzlesLoad_dataGridView);
+                AdjustNozzleGrid(NozzlesParameters_dataGridView);
+                Nozzle.AdjustNozzleCalibrationDataCount();
+            };
         }
 
         private void AdjustNozzleGrid(DataGridView Grid)
@@ -12304,9 +12309,12 @@ namespace LitePlacer
             for (int i = 0; i < Setting.Nozzles_count; i++)
             {
                 // number the rows
-                NozzlesLoad_dataGridView.Rows[i].Cells[0].Value = (i + 1).ToString();
-                NozzlesUnload_dataGridView.Rows[i].Cells[0].Value = (i + 1).ToString();
-                AddNozzleAlgorithmNames(i);
+                if (i<NozzlesLoad_dataGridView.RowCount && i < NozzlesUnload_dataGridView.RowCount)
+                {
+                    NozzlesLoad_dataGridView.Rows[i].Cells[0].Value = (i + 1).ToString();
+                    NozzlesUnload_dataGridView.Rows[i].Cells[0].Value = (i + 1).ToString();
+                    AddNozzleAlgorithmNames(i);
+                }
             }
         }
 
